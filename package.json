@@ -39,10 +39,11 @@
     "lodash.clonedeep": "^4.5.0"
   },
   "devDependencies": {
+    "@testing-library/vue": "^7.0.0",
     "@types/lodash.clonedeep": "^4.5.7",
     "@vitejs/plugin-vue": "^4.1.0",
     "@vitest/coverage-c8": "^0.29.8",
-    "@vue/test-utils": "^2.3.2",
+    "happy-dom": "^9.7.1",
     "vite": "^4.2.1",
     "vite-plugin-dts": "^2.2.0",
     "vitest": "^0.29.8",
