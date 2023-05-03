@@ -1,31 +1,39 @@
-import { isRef, isReadonly, isReactive, effectScope, watch } from 'vue';
+import { isReactive, effectScope, watch } from 'vue';
 import cloneDeep from 'lodash.clonedeep';
 
-interface Storer {
-  $reset(): void;
-  $subscribe<F extends (...args: any[]) => any>(fn: F): void;
+interface Store<S, G, A> {
+  state: S;
+  getters: G;
+  actions: A;
+  $reset: () => void;
+  $subscribe: (fn: (state: S) => void) => void;
 }
 
-export const defineStore = <F extends (...args: any[]) => any>(name: string, options: F) => {
+type StoreOptions<S, G, A> = () => {
+  state?: S;
+  getters?: G;
+  actions?: A;
+};
+
+export const defineStore = <S extends object, G extends object, A extends Record<string, any>>(
+  name: string,
+  options: StoreOptions<S, G, A>,
+): (() => Store<S, G, A>) => {
   const store = options();
 
   const initialState = cloneDeep(store);
 
   function $reset() {
-    if (isReactive(store.state)) {
+    if (isReactive(store.state) && initialState.state) {
       Object.entries(initialState.state).forEach(([key, val]) => {
-        store.state[key] = val;
-      });
-    } else {
-      Object.entries(initialState).forEach(([key, val]) => {
-        if (isRef(val) && !isReadonly(val)) {
-          store[key].value = val.value;
+        if (store.state) {
+          store.state[key as keyof typeof store.state] = val;
         }
       });
     }
   }
 
-  const $subscribe: Storer['$subscribe'] = (fn) => {
+  const $subscribe = (fn: (state: S) => void) => {
     const scope = effectScope();
 
     scope.run(() => {
@@ -33,23 +41,7 @@ export const defineStore = <F extends (...args: any[]) => any>(name: string, opt
         watch(
           () => store.state,
           (value) => {
-            fn(value);
-          },
-          { deep: true },
-        );
-      } else {
-        watch(
-          () => store,
-          (value) => {
-            const obj = {} as Record<string, unknown>;
-
-            Object.entries(value).forEach(([key, val]) => {
-              if (isRef(val) && !isReadonly(val)) {
-                obj[key] = val;
-              }
-            });
-
-            fn(obj);
+            fn(value as S);
           },
           { deep: true },
         );
@@ -57,10 +49,5 @@ export const defineStore = <F extends (...args: any[]) => any>(name: string, opt
     });
   };
 
-  return () =>
-    ({
-      ...store,
-      $reset,
-      $subscribe,
-    } as ReturnType<F> & Storer);
+  return () => ({ ...store, $reset, $subscribe } as Store<S, G, A>);
 };

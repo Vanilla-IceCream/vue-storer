@@ -28,59 +28,13 @@ const { defineStore } = require('vue-storer');
 
 ## Guide
 
-### Setup Stores
-
-Defines reactive properties and methods and returns an object
-
-```ts
-import { ref, computed } from 'vue';
-import { defineStore } from 'vue-storer';
-
-export const useCounter = defineStore('counter', () => {
-  const name = ref('Counter');
-  const count = ref(0);
-
-  const doubleCount = computed(() => count.value * 2);
-
-  function increment() {
-    count.value += 1;
-  }
-
-  return { name, count, doubleCount, increment };
-});
-```
-
-```vue
-<script lang="ts" setup>
-import { useCounter } from './store';
-
-const counter = useCounter();
-
-counter.$subscribe((state) => {
-  console.log(state.count.value);
-});
-</script>
-
-<template>
-  <p>Name: {{ counter.name.value }}</p>
-  <p>Count: {{ counter.count.value }}</p>
-  <p>Double Count: {{ counter.doubleCount.value }}</p>
-  <button @click="counter.increment">Increment</button>
-  <button @click="counter.$reset">Reset</button>
-</template>
-```
-
-### Option Stores
-
-Options object with `state`, `actions`, and `getters` properties
-
 ```ts
 import { reactive, readonly } from 'vue';
 import { defineStore } from 'vue-storer';
 
 export const useCounter = defineStore('counter', () => {
   const state = reactive({
-    name: 'Counter 2',
+    name: 'Counter',
     count: 0,
   });
 
