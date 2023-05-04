@@ -1,6 +1,6 @@
 {
   "name": "vue-storer",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "State management for Vue.",
   "main": "./dist/vue-storer.umd.cjs",
   "module": "./dist/vue-storer.js",
