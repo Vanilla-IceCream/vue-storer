@@ -18,6 +18,7 @@ type StoreOptions<S, G, A> = () => {
 export const defineStore = <S extends object, G extends object, A extends Record<string, any>>(
   name: string,
   options: StoreOptions<S, G, A>,
+  storage?: Storage,
 ): (() => Store<S, G, A>) => {
   const store = options();
 
@@ -48,6 +49,26 @@ export const defineStore = <S extends object, G extends object, A extends Record
       }
     });
   };
+
+  if (storage && isReactive(store.state)) {
+    watch(
+      () => store.state,
+      (value) => {
+        storage.setItem(name, JSON.stringify(value));
+      },
+      { deep: true },
+    );
+
+    const persistedState: S = JSON.parse(storage.getItem(name) as string);
+
+    if (persistedState) {
+      Object.entries(persistedState).forEach(([key, val]) => {
+        if (store.state) {
+          store.state[key as keyof typeof store.state] = val;
+        }
+      });
+    }
+  }
 
   return () => ({ ...store, $reset, $subscribe } as Store<S, G, A>);
 };

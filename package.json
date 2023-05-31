@@ -1,8 +1,8 @@
 {
   "name": "vue-storer",
-  "version": "0.2.1",
+  "version": "0.3.0",
   "description": "State management for Vue.",
-  "main": "./dist/vue-storer.umd.cjs",
+  "main": "./dist/vue-storer.cjs",
   "module": "./dist/vue-storer.js",
   "types": "./dist/vue-storer.d.ts",
   "type": "module",
@@ -12,7 +12,7 @@
   "exports": {
     ".": {
       "import": "./dist/vue-storer.js",
-      "require": "./dist/vue-storer.umd.cjs"
+      "require": "./dist/vue-storer.cjs"
     }
   },
   "scripts": {
@@ -39,14 +39,14 @@
     "lodash.clonedeep": "^4.5.0"
   },
   "devDependencies": {
-    "@testing-library/vue": "^7.0.0",
     "@types/lodash.clonedeep": "^4.5.7",
-    "@vitejs/plugin-vue": "^4.1.0",
-    "@vitest/coverage-c8": "^0.29.8",
-    "happy-dom": "^9.7.1",
-    "vite": "^4.2.1",
-    "vite-plugin-dts": "^2.2.0",
-    "vitest": "^0.29.8",
-    "vue": "^3.2.47"
+    "@vitejs/plugin-vue": "^4.2.3",
+    "@vitest/coverage-c8": "^0.31.2",
+    "@vue/test-utils": "^2.3.2",
+    "happy-dom": "^9.20.3",
+    "vite": "^4.3.9",
+    "vite-plugin-dts": "^2.3.0",
+    "vitest": "^0.31.2",
+    "vue": "^3.3.4"
   }
 }
