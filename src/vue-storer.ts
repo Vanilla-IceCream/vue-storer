@@ -20,55 +20,61 @@ export const defineStore = <S extends object, G extends object, A extends Record
   options: StoreOptions<S, G, A>,
   storage?: Storage,
 ): (() => Store<S, G, A>) => {
-  const store = options();
+  const scope = effectScope(true);
 
-  const initialState = cloneDeep(store);
+  let inited = false;
+  let stored: Store<S, G, A>;
+  let stated: S;
 
-  function $reset() {
-    if (isReactive(store.state) && initialState.state) {
-      Object.entries(initialState.state).forEach(([key, val]) => {
-        if (store.state) {
-          store.state[key as keyof typeof store.state] = val;
-        }
+  return () => {
+    if (!inited) {
+      inited = true;
+      stored = scope.run(() => options()) as Store<S, G, A>;
+      stated = cloneDeep(stored.state);
+    }
+
+    function $reset() {
+      const _stated = cloneDeep(stated);
+
+      Object.entries(_stated).forEach(([key, val]) => {
+        stored.state[key as keyof typeof stored.state] = val;
       });
     }
-  }
 
-  const $subscribe = (fn: (state: S) => void) => {
-    const scope = effectScope();
+    const $subscribe = (fn: (state: S) => void) => {
+      const scope = effectScope();
 
-    scope.run(() => {
-      if (isReactive(store.state)) {
-        watch(
-          () => store.state,
-          (value) => {
-            fn(value as S);
-          },
-          { deep: true },
-        );
+      scope.run(() => {
+        if (isReactive(stored.state)) {
+          watch(
+            () => stored.state,
+            (value) => {
+              fn(value as S);
+            },
+            { deep: true },
+          );
+        }
+      });
+    };
+
+    if (storage && isReactive(stored.state)) {
+      watch(
+        () => stored.state,
+        (value) => {
+          storage.setItem(name, JSON.stringify(value));
+        },
+        { deep: true },
+      );
+
+      const persistedState: S = JSON.parse(storage.getItem(name) as string);
+
+      if (persistedState) {
+        Object.entries(persistedState).forEach(([key, val]) => {
+          stored.state[key as keyof typeof stored.state] = val;
+        });
       }
-    });
-  };
-
-  if (storage && isReactive(store.state)) {
-    watch(
-      () => store.state,
-      (value) => {
-        storage.setItem(name, JSON.stringify(value));
-      },
-      { deep: true },
-    );
-
-    const persistedState: S = JSON.parse(storage.getItem(name) as string);
-
-    if (persistedState) {
-      Object.entries(persistedState).forEach(([key, val]) => {
-        if (store.state) {
-          store.state[key as keyof typeof store.state] = val;
-        }
-      });
     }
-  }
 
-  return () => ({ ...store, $reset, $subscribe } as Store<S, G, A>);
+    return { ...stored, $reset, $subscribe };
+  };
 };
