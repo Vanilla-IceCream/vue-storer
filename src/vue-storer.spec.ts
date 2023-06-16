@@ -1,5 +1,5 @@
 import { computed, reactive, readonly, defineComponent, nextTick } from 'vue';
-import { test, expect } from 'vitest';
+import { test, expect, vi } from 'vitest';
 import { mount } from '@vue/test-utils';
 
 import { defineStore } from './vue-storer';
@@ -60,6 +60,52 @@ test('store - 2', async () => {
   await nextTick();
   const calledEvent = wrapper.emitted('called');
   expect(calledEvent).toHaveLength(1);
+});
+
+test('store - 2-1', async () => {
+  const Test = defineComponent({
+    emits: ['called'],
+    setup(props, { emit }) {
+      const { actions, $subscribe } = useCounter();
+
+      const unsubscribe = $subscribe(() => {
+        emit('called');
+      });
+
+      unsubscribe();
+
+      return { actions };
+    },
+    template: `<button @click="actions.increment">Increment</button>`,
+  });
+
+  const wrapper = mount(Test);
+
+  await wrapper.find('button').trigger('click');
+
+  await nextTick();
+  const calledEvent = wrapper.emitted('called');
+  expect(calledEvent).toBe(undefined);
+});
+
+test('store - 2-2', async () => {
+  const useStore = defineStore('counter', () => {
+    const state = reactive({
+      count: 0,
+    });
+
+    return { state };
+  });
+
+  const spy = vi.fn();
+
+  const store = useStore();
+  const unsubscribe = store.$subscribe(spy);
+  unsubscribe();
+
+  store.state.count = 1;
+
+  expect(spy).not.toHaveBeenCalled();
 });
 
 const useCounterWithStorage = defineStore(

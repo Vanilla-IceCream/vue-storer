@@ -6,7 +6,7 @@ interface Store<S, G, A> {
   getters: G;
   actions: A;
   $reset: () => void;
-  $subscribe: (fn: (state: S) => void) => void;
+  $subscribe: (fn: (state: S) => void) => () => void;
 }
 
 type StoreOptions<S, G, A> = () => {
@@ -42,9 +42,9 @@ export const defineStore = <S extends object, G extends object, A extends Record
     }
 
     const $subscribe = (fn: (state: S) => void) => {
-      const scope = effectScope();
+      const subscriber = effectScope();
 
-      scope.run(() => {
+      subscriber.run(() => {
         if (isReactive(stored.state)) {
           watch(
             () => stored.state,
@@ -55,6 +55,10 @@ export const defineStore = <S extends object, G extends object, A extends Record
           );
         }
       });
+
+      return () => {
+        subscriber.stop();
+      };
     };
 
     if (storage && isReactive(stored.state)) {
