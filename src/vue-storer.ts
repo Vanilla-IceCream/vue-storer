@@ -1,5 +1,4 @@
-import { isReactive, effectScope, watch } from 'vue';
-import cloneDeep from 'lodash.clonedeep';
+import { isReactive, effectScope, watch, toRaw } from 'vue';
 
 interface Store<S, G, A> {
   state: S;
@@ -30,11 +29,11 @@ export const defineStore = <S extends object, G extends object, A extends Record
     if (!inited) {
       inited = true;
       stored = scope.run(() => options()) as Store<S, G, A>;
-      stated = cloneDeep(stored.state);
+      stated = structuredClone(toRaw(stored.state));
     }
 
     function $reset() {
-      const _stated = cloneDeep(stated);
+      const _stated = structuredClone(stated);
 
       Object.entries(_stated).forEach(([key, val]) => {
         stored.state[key as keyof typeof stored.state] = val;
