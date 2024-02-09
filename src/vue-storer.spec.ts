@@ -1,5 +1,4 @@
 import { computed, reactive, readonly, defineComponent, nextTick } from 'vue';
-import { test, expect, vi } from 'vitest';
 import { mount } from '@vue/test-utils';
 
 import { defineStore } from './vue-storer';

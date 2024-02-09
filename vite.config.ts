@@ -10,11 +10,17 @@ export default defineConfig({
       formats: ['es', 'cjs'],
     },
     rollupOptions: {
-      external: ['vue', 'lodash.clonedeep'],
+      external: ['vue'],
     },
   },
-  plugins: [vue(), dts()],
+  plugins: [
+    vue(),
+    dts({
+      exclude: ['src/**/*.spec.ts'],
+    }),
+  ],
   test: {
+    globals: true,
     environment: 'happy-dom',
   },
 });
