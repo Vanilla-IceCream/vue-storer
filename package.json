@@ -2,9 +2,6 @@
   "name": "vue-storer",
   "version": "0.7.0",
   "description": "State management for Vue.",
-  "main": "./dist/vue-storer.cjs",
-  "module": "./dist/vue-storer.js",
-  "types": "./dist/src/vue-storer.d.ts",
   "type": "module",
   "files": [
     "dist"
@@ -12,12 +9,8 @@
   "exports": {
     ".": {
       "import": {
-        "types": "./dist/src/vue-storer.d.ts",
-        "default": "./dist/vue-storer.js"
-      },
-      "require": {
-        "types": "./dist/src/vue-storer.d.ts",
-        "default": "./dist/vue-storer.cjs"
+        "types": "./dist/src/index.d.ts",
+        "default": "./dist/index.js"
       }
     }
   },

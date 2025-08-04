@@ -21,11 +21,7 @@ $ bun add vue-storer
 To use `vue-storer`, import the `defineStore` function:
 
 ```ts
-// esm
 import { defineStore } from 'vue-storer';
-
-// cjs
-const { defineStore } = require('vue-storer');
 ```
 
 ## Guide
@@ -96,6 +92,6 @@ export const useCounter = defineStore(
     /* ... */
     return { state, getters, actions };
   },
-  sessionStorage, // You can also use `localStorage`.
+  sessionStorage // You can also use `localStorage`.
 );
 ```

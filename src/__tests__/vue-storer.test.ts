@@ -1,7 +1,7 @@
 import { computed, reactive, readonly, defineComponent, nextTick } from 'vue';
 import { mount } from '@vue/test-utils';
 
-import { defineStore } from './vue-storer';
+import { defineStore } from '../';
 
 const useCounter = defineStore('counter', () => {
   const state = reactive({
@@ -127,7 +127,7 @@ const useCounterWithStorage = defineStore(
 
     return { state, getters, actions };
   },
-  sessionStorage,
+  sessionStorage
 );
 
 test('store - 3', async () => {
@@ -152,7 +152,7 @@ test('store - 4', async () => {
 
       return { state };
     },
-    sessionStorage,
+    sessionStorage
   );
 
   const { state } = useFoo();

@@ -6,17 +6,22 @@ import dts from 'vite-plugin-dts';
 export default defineConfig({
   build: {
     lib: {
-      entry: resolve(__dirname, 'src/vue-storer.ts'),
-      formats: ['es', 'cjs'],
+      entry: resolve(import.meta.dirname, 'src/index.ts'),
+      formats: ['es'],
+      fileName: '[name]',
     },
     rollupOptions: {
       external: ['vue'],
+      output: {
+        preserveModules: true,
+      },
     },
+    minify: false,
   },
   plugins: [
     vue(),
     dts({
-      exclude: ['src/**/*.spec.ts'],
+      exclude: ['vite.config.ts', '**/__tests__/**'],
     }),
   ],
   test: {
