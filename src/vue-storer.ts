@@ -17,13 +17,14 @@ type StoreOptions<S, G, A> = () => {
 export const defineStore = <S extends object, G extends object, A extends Record<string, any>>(
   name: string,
   options: StoreOptions<S, G, A>,
-  storage?: Storage,
+  storage?: Storage
 ): (() => Store<S, G, A>) => {
   const scope = effectScope(true);
 
   let inited = false;
   let stored: Store<S, G, A>;
   let stated: S;
+  let hydrated = false;
 
   return () => {
     if (!inited) {
@@ -50,7 +51,7 @@ export const defineStore = <S extends object, G extends object, A extends Record
             (value) => {
               fn(value as S);
             },
-            { deep: true },
+            { deep: true }
           );
         }
       });
@@ -61,19 +62,56 @@ export const defineStore = <S extends object, G extends object, A extends Record
     };
 
     if (storage && isReactive(stored.state)) {
-      watch(
+      const watcher = watch(
         () => stored.state,
         (value) => {
           storage.setItem(name, JSON.stringify(value));
         },
-        { deep: true },
+        { deep: true }
       );
 
-      const persistedState: S = JSON.parse(storage.getItem(name) as string);
+      if (!hydrated) {
+        hydrated = true;
 
-      if (persistedState) {
-        Object.entries(persistedState).forEach(([key, val]) => {
-          stored.state[key as keyof typeof stored.state] = val;
+        const raw = storage.getItem(name);
+
+        if (raw) {
+          watcher.pause();
+
+          try {
+            const persistedState: S = JSON.parse(raw);
+
+            Object.entries(persistedState).forEach(([key, val]) => {
+              stored.state[key as keyof typeof stored.state] = val;
+            });
+          } catch (err) {
+            console.error(`[vue-storer] Failed to parse persisted state for "${name}"`, err);
+          } finally {
+            watcher.resume();
+          }
+        }
+      }
+
+      if (storage === localStorage) {
+        window.addEventListener('storage', (event) => {
+          if (event.key === name && event.newValue) {
+            watcher.pause();
+
+            try {
+              const newState: S = JSON.parse(event.newValue);
+
+              Object.entries(newState).forEach(([key, val]) => {
+                stored.state[key as keyof typeof stored.state] = val;
+              });
+            } catch (err) {
+              console.error(
+                `[vue-storer] Failed to sync state from storage event for "${name}"`,
+                err
+              );
+            } finally {
+              watcher.resume();
+            }
+          }
         });
       }
     }
