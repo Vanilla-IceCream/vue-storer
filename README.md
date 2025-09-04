@@ -2,6 +2,9 @@
 
 State management for Vue.
 
+> [!CAUTION]
+> This library does not support server-side rendering.
+
 ## Installation
 
 Install `vue-storer` with your favorite package manager:
