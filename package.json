@@ -1,6 +1,6 @@
 {
   "name": "vue-storer",
-  "version": "0.7.0",
+  "version": "0.7.1",
   "description": "State management for Vue.",
   "type": "module",
   "files": [
@@ -9,7 +9,7 @@
   "exports": {
     ".": {
       "import": {
-        "types": "./dist/src/index.d.ts",
+        "types": "./dist/index.d.ts",
         "default": "./dist/index.js"
       }
     }
