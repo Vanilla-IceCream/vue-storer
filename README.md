@@ -61,7 +61,7 @@ You can then use the store in a Vue component by calling `useCounter`:
 
 ```vue
 <script lang="ts" setup>
-import { useCounter } from './store';
+import { useCounter } from './store.ts';
 
 const { state, getters, actions, $reset, $subscribe } = useCounter();
 
@@ -97,4 +97,60 @@ export const useCounter = defineStore(
   },
   sessionStorage // You can also use `localStorage`.
 );
+```
+
+## Use with [`vite-plugin-vue-routes`](https://github.com/Vanilla-IceCream/vite-plugin-vue-routes)
+
+### For standalone pages
+
+```vue
+<!-- src/routes/path/to/+page.vue -->
+<script lang="ts" setup>
+import { onMounted, onUnmounted } from 'vue';
+
+import useStore from './store.ts';
+
+const { state, getters, actions, $reset } = useStore();
+
+onMounted(() => actions.initialize());
+onUnmounted(() => $reset());
+</script>
+```
+
+### For related pages
+
+```coffee
+src/routes/products/+page.vue -> /products
+src/routes/products/[id]/+page.vue -> /products/:id
+```
+
+```vue
+<!-- src/routes/products/+page.vue -->
+<script lang="ts" setup>
+import { onMounted } from 'vue';
+import { onBeforeRouteLeave } from 'vue-router';
+
+import useStore from './store.ts';
+
+const { state, getters, actions, $reset } = useStore();
+
+onMounted(() => actions.initialize());
+onBeforeRouteLeave((to, from) => !to.path.startsWith(from.path) && $reset());
+</script>
+```
+
+```vue
+<!-- src/routes/products/[id]/+page.vue -->
+<script lang="ts" setup>
+import { onMounted, onUnmounted } from 'vue';
+
+import useParentStore from '../store.ts';
+import useStore from './store.ts';
+
+const parentStore = useParentStore();
+const { state, getters, actions, $reset } = useStore();
+
+onMounted(() => actions.initialize());
+onUnmounted(() => $reset());
+</script>
 ```
